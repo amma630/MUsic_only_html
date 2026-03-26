@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Player</title>
+
+<style>
+body {
+    font-family: system-ui;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin:0;
+    color:white;
+}
+
+/* PLAYER */
+.player {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    padding: 20px;
+    border-radius: 25px;
+    width: 320px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+
+/* IMAGE */
+.album {
+    width: 200px;
+    height: 200px;
+    margin:auto;
+    border-radius: 20px;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+}
+
+/* TITLE */
+h2 {
+    margin: 15px 0 5px;
+}
+
+/* PROGRESS */
+.progress {
+    width: 100%;
+    margin-top:10px;
+}
+
+/* TIME */
+.time {
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+}
+
+/* CONTROLS */
+.controls {
+    margin-top: 10px;
+}
+
+.controls button {
+    margin: 8px;
+    padding: 12px;
+    border: none;
+    border-radius: 50%;
+    background: #38bdf8;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+    transition:0.2s;
+}
+
+.controls button:hover {
+    transform: scale(1.2);
+}
+
+/* PLAY BUTTON BIG */
+.play {
+    padding:16px;
+    font-size:22px;
+}
+
+/* VOLUME */
+.volume {
+    margin-top:10px;
+}
+
+input[type=range] {
+    width:100%;
+}
+</style>
+</head>
+
+<body>
+
+<div class="player">
+
+    <div class="album" id="album"></div>
+
+    <h2 id="title">Music Player</h2>
+
+    <audio id="audio"></audio>
+
+    <input type="range" id="progress" class="progress" value="0">
+
+    <div class="time">
+        <span id="current">0:00</span>
+        <span id="duration">0:00</span>
+    </div>
+
+    <div class="controls">
+        <button onclick="prevSong()">⏮</button>
+        <button onclick="playPause()" class="play" id="playBtn">▶</button>
+        <button onclick="nextSong()">⏭</button>
+    </div>
+
+    <div class="volume">
+        🔊 <input type="range" id="volume" min="0" max="1" step="0.1">
+    </div>
+
+</div>
+
+<script>
+
+/* SONGS WITH REAL NAMES */
+let songs = [
+ {name:"SriRama", file:"songs/song1.mp3", img:"images/img1.jpg"},
+ {name:"Believer", file:"songs/Believer.mp3", img:"images/img2.jpg"},
+ {name:"Shape of You", file:"songs/Shape of You.mp3", img:"images/img3.jpg"}
+];
+
+let currentSong = 0;
+let audio = document.getElementById("audio");
+let title = document.getElementById("title");
+let progress = document.getElementById("progress");
+let album = document.getElementById("album");
+let playBtn = document.getElementById("playBtn");
+
+/* LOAD SONG */
+function loadSong(index) {
+    audio.src = songs[index].file;
+    title.innerText = songs[index].name;
+    album.style.backgroundImage = `url(${songs[index].img})`;
+}
+
+/* PLAY / PAUSE */
+function playPause() {
+    if (audio.paused) {
+        audio.play();
+        playBtn.innerText="⏸";
+    } else {
+        audio.pause();
+        playBtn.innerText="▶";
+    }
+}
+
+/* NEXT */
+function nextSong() {
+    currentSong = (currentSong + 1) % songs.length;
+    loadSong(currentSong);
+    audio.play();
+    playBtn.innerText="⏸";
+}
+
+/* PREV */
+function prevSong() {
+    currentSong = (currentSong - 1 + songs.length) % songs.length;
+    loadSong(currentSong);
+    audio.play();
+    playBtn.innerText="⏸";
+}
+
+/* PROGRESS */
+audio.addEventListener("timeupdate", () => {
+    if(audio.duration){
+        progress.value = (audio.currentTime / audio.duration) * 100;
+        document.getElementById("current").innerText = format(audio.currentTime);
+        document.getElementById("duration").innerText = format(audio.duration);
+    }
+});
+
+/* SEEK */
+progress.addEventListener("input", () => {
+    if(audio.duration){
+        audio.currentTime = (progress.value / 100) * audio.duration;
+    }
+});
+
+/* VOLUME */
+document.getElementById("volume").addEventListener("input", (e)=>{
+    audio.volume = e.target.value;
+});
+
+/* TIME FORMAT */
+function format(t){
+ let m=Math.floor(t/60);
+ let s=Math.floor(t%60);
+ return m+":"+(s<10?"0"+s:s);
+}
+
+/* INIT */
+loadSong(currentSong);
+
+</script>
+
+</body>
+</html>
